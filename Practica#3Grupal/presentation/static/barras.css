@@ -1,0 +1,16 @@
+/* Rejilla de tres tarjetas, una por escenario. */
+.bar-charts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
+/* Tarjeta individual de cada escenario. */
+.bar-scenario{background:#0e1927;border:1px solid #263649;border-radius:10px;padding:14px;min-width:0}
+/* Título del escenario. */
+.bar-scenario h3{margin:0;font-size:14px;letter-spacing:-.2px}
+/* Parámetros λ y μ bajo el título. */
+.bar-scenario .bar-meta{margin:3px 0 10px;color:#8c9eb2;font-size:11px}
+/* Lienzo donde se dibujan las barras. */
+.bar-scenario canvas{display:block;width:100%;height:250px}
+/* El mensaje de estado ocupa toda la rejilla. */
+.bar-charts>.footnote{grid-column:1/-1}
+/* Adaptación a pantallas medianas: dos columnas. */
+@media(max-width:1070px){.bar-charts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* Adaptación a móviles: una columna. */
+@media(max-width:650px){.bar-charts{grid-template-columns:1fr}}
