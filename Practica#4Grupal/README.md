@@ -70,7 +70,7 @@ python --version
 
 ```
 proyecto_sir/
-|-- principal.py                 <- puerta de entrada: se ejecuta este archivo
+|-- main.py                 <- puerta de entrada: se ejecuta este archivo
 |-- requirements.txt             <- lista de librerias que hay que instalar
 |-- README.md                    <- este documento
 |
@@ -380,7 +380,7 @@ por linea). Ya trae los procedimientos que **leen** el CSV y dibujan las grafica
 
 ### Paso 1. Crear el modelo y pegar el codigo
 
-1. Ejecute primero `python principal.py` para que exista `netlogo/resultados_python.csv`.
+1. Ejecute primero `python main.py` para que exista `netlogo/resultados_python.csv`.
 2. Abra NetLogo y cree un modelo nuevo (*File > New*).
 3. Guardelo (*File > Save*) con el nombre `modelo_sir_netlogo.nlogo` **dentro de la carpeta
    `netlogo/` del proyecto**, junto al CSV.
@@ -469,18 +469,5 @@ metodo lo explica.
 | `No such file or directory` al crear el entorno                | Esta en otra carpeta. Use `cd` hasta `proyecto_sir`. |
 | El programa repite una pregunta                                | Escribio un valor no valido (letras, beta mayor que 1...). Lea el mensaje y corrija. |
 | NetLogo: "Archivo no encontrado"                               | Guarde el `.nlogo` en la misma carpeta que el CSV (carpeta `netlogo/`). |
-| NetLogo: "Encabezado inesperado"                               | El CSV fue modificado. Vuelva a generarlo con `python principal.py`. |
+| NetLogo: "Encabezado inesperado"                               | El CSV fue modificado. Vuelva a generarlo con `python main.py`. |
 | Quiero empezar de cero                                         | Borre la carpeta `entorno_sir` y repita los Pasos 3 a 5. |
-
----
-
-## 10. Ejercicios sugeridos
-
-1. Ejecute con semillas 1, 2 y 3. Compare el pico de infectados. Por que cambian los numeros?
-2. Use `beta = 0.1` y `gamma = 0.3` (R0 menor que 1). Que pasa con la epidemia?
-3. Compare `resultados_python.csv` con `resultados_euler_python.csv` en una hoja de calculo.
-   En que se parecen y en que se diferencian?
-4. Agregue un nuevo parametro en `configuracion.py` y muestre su valor en `consola.py`. En
-   cuantas capas tuvo que tocar codigo? Por que?
-5. Cambie el titulo de la grafica en `graficador.py` y vuelva a ejecutar. Que capas se vieron
-   afectadas por ese cambio y cuales no? (Esa es la ventaja de separar en capas.)
