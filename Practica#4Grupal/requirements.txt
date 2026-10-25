@@ -1,0 +1,10 @@
+# Las lineas que empiezan con # son comentarios: pip las ignora.
+# Cada linea sin # es una libreria que se instala con:  pip install -r requirements.txt
+
+# simpy: libreria de simulacion de eventos discretos (el reloj de la simulacion SIR).
+# ">=4.1,<5" significa: version 4.1 o mayor, pero menor que la 5.
+simpy>=4.1,<5
+
+# matplotlib: libreria para dibujar la grafica de S, I y R y guardarla como PNG.
+# ">=3.7,<4" significa: version 3.7 o mayor, pero menor que la 4.
+matplotlib>=3.7,<4
