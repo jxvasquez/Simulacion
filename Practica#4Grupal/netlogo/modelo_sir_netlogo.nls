@@ -1,0 +1,272 @@
+; ==============================================================================
+; ARCHIVO : netlogo/modelo_sir_netlogo.nls
+; OBJETIVO: modelo SIR en NetLogo 6.x/7.x que (1) genera su propia serie de datos y
+;           (2) importa el CSV creado por Python (resultados_python.csv) para comparar.
+; USO     : copiar todo este codigo en la pestana "Code" de un modelo NetLogo nuevo.
+;           Los graficos se crean desde la pestana "Interface" (ver README.md).
+; ==============================================================================
+
+; Activamos la extension "csv", que permite leer y escribir archivos CSV desde NetLogo.
+extensions [csv]
+
+; Declaramos las variables globales (visibles desde todos los procedimientos).
+globals [
+  ; beta = tasa de contagio, gamma = tasa de recuperacion, poblacion = N, pasos = tiempo total.
+  beta gamma poblacion pasos
+  ; Listas donde se guardan las series de datos de Python, de Java y de NetLogo.
+  datos-python datos-java datos-netlogo
+]
+; Cada tortuga (persona) tiene una variable propia: su estado de salud ("S", "I" o "R").
+turtles-own [estado-sir]
+
+; Misma formulacion diferencial de la guia (referencia matematica).
+; Este procedimiento recibe S, I y R, y devuelve una lista con [dS dI dR].
+to-report derivadas-sir [susceptibles infectados recuperados]
+  ; Calculamos la poblacion total N = S + I + R.
+  let total susceptibles + infectados + recuperados
+  ; Si la poblacion no es positiva, detenemos el programa con un mensaje de error.
+  if total <= 0 [ error "La poblacion debe ser positiva" ]
+  ; Contagios esperados = beta * S * I / N.
+  let contagios beta * susceptibles * infectados / total
+  ; Recuperaciones esperadas = gamma * I.
+  let recuperaciones gamma * infectados
+  ; Devolvemos la lista [dS dI dR] = [-contagios, contagios - recuperaciones, recuperaciones].
+  report (list (0 - contagios) (contagios - recuperaciones) recuperaciones)
+; Fin del procedimiento derivadas-sir.
+end
+
+; Este procedimiento devuelve R0 = beta / gamma (numero reproductivo basico).
+to-report numero-reproductivo-basico
+  ; Si gamma no es positiva, la division no tiene sentido: detenemos con un error.
+  if gamma <= 0 [ error "Gamma debe ser positiva" ]
+  ; Devolvemos beta dividido entre gamma.
+  report beta / gamma
+; Fin del procedimiento numero-reproductivo-basico.
+end
+
+; Este procedimiento prepara la simulacion (corresponde al boton "preparar").
+to preparar
+  ; Borramos todo lo que hubiera de una ejecucion anterior.
+  clear-all
+  ; Asignamos beta = 0.30.
+  set beta 0.30
+  ; Asignamos gamma = 0.10.
+  set gamma 0.10
+  ; Asignamos la poblacion N = 100.
+  set poblacion 100
+  ; Asignamos la cantidad de pasos de tiempo = 100.
+  set pasos 100
+  ; Fijamos la semilla aleatoria para poder repetir los resultados.
+  random-seed 42
+  ; Creamos tantas tortugas (personas) como indica la poblacion.
+  create-turtles poblacion [
+    ; Ubicamos la tortuga en una posicion al azar del mundo.
+    setxy random-xcor random-ycor
+    ; Todas empiezan como susceptibles.
+    set estado-sir "S"
+    ; Las susceptibles se pintan de azul.
+    set color blue
+    ; Les damos forma de persona.
+    set shape "person"
+    ; Les damos un tamano visible.
+    set size 1.2
+  ]
+  ; Definimos cuantos infectados hay al comenzar.
+  let infectados-iniciales 5
+  ; Elegimos 5 tortugas al azar y las convertimos en infectadas (color rojo).
+  ask n-of infectados-iniciales turtles [ set estado-sir "I" set color red ]
+  ; Vaciamos la lista de datos de Python.
+  set datos-python []
+  ; Vaciamos la lista de datos de Java.
+  set datos-java []
+  ; Vaciamos la lista de datos de NetLogo.
+  set datos-netlogo []
+  ; Reiniciamos el contador de tiempo (ticks) a cero.
+  reset-ticks
+  ; Guardamos la fila del tiempo 0.
+  guardar-registro
+  ; Mostramos S inicial, I inicial y R0 en la ventana de comandos.
+  show (word "S inicial=" count turtles with [estado-sir = "S"]
+    ", I inicial=" count turtles with [estado-sir = "I"]
+    ", R0=" numero-reproductivo-basico)
+  ; Mostramos las derivadas dS, dI y dR del instante inicial.
+  show (word "dS, dI, dR iniciales: "
+    (derivadas-sir (poblacion - infectados-iniciales) infectados-iniciales 0))
+; Fin del procedimiento preparar.
+end
+
+; Este procedimiento avanza UN paso de tiempo (corresponde al boton "avanzar").
+to avanzar
+  ; Si ya se completaron todos los pasos, detenemos el boton.
+  if ticks >= pasos [ stop ]
+  ; Contamos cuantos infectados hay antes de este paso.
+  let infectados-anteriores count turtles with [estado-sir = "I"]
+  ; Calculamos la probabilidad de contagio: 1 - (1 - beta/N) elevado a I.
+  let probabilidad-contagio (1 - ((1 - beta / poblacion) ^ infectados-anteriores))
+  ; Agentset separado: los recien infectados no se recuperan hasta el proximo paso.
+  ; Guardamos el grupo de infectados actuales ANTES de que cambie nadie.
+  let infectados-actuales turtles with [estado-sir = "I"]
+  ; Guardamos el grupo de susceptibles actuales ANTES de que cambie nadie.
+  let susceptibles-actuales turtles with [estado-sir = "S"]
+  ; Cada susceptible se contagia con la probabilidad calculada.
+  ask susceptibles-actuales [
+    ; Si el numero al azar es menor que la probabilidad, pasa a infectado (rojo).
+    if random-float 1 < probabilidad-contagio [ set estado-sir "I" set color red ]
+  ]
+  ; Cada infectado se recupera con probabilidad gamma.
+  ask infectados-actuales [
+    ; Si el numero al azar es menor que gamma, pasa a recuperado (verde).
+    if random-float 1 < gamma [ set estado-sir "R" set color green ]
+  ]
+  ; Avanzamos el reloj de NetLogo en una unidad.
+  tick
+  ; Guardamos la fila de este nuevo instante.
+  guardar-registro
+  ; Redibujamos la grafica "SIR NetLogo".
+  actualizar-grafica-local
+; Fin del procedimiento avanzar.
+end
+
+; Este procedimiento agrega a la lista datos-netlogo una fila [tiempo S I R].
+to guardar-registro
+  ; lput agrega al final de la lista; list arma la fila con los cuatro valores.
+  set datos-netlogo lput (list ticks
+    ; Cantidad de susceptibles.
+    (count turtles with [estado-sir = "S"])
+    ; Cantidad de infectados.
+    (count turtles with [estado-sir = "I"])
+    ; Cantidad de recuperados.
+    (count turtles with [estado-sir = "R"])) datos-netlogo
+; Fin del procedimiento guardar-registro.
+end
+
+; Este procedimiento guarda los resultados de NetLogo en un CSV (boton "exportar-netlogo").
+to exportar-netlogo
+  ; csv:to-file escribe el archivo; fput pone primero la fila de encabezados.
+  csv:to-file "resultados_netlogo.csv"
+    (fput (list "tiempo" "susceptibles" "infectados" "recuperados") datos-netlogo)
+; Fin del procedimiento exportar-netlogo.
+end
+
+; Este procedimiento importa el CSV que genera el programa de Python (boton "cargar-python").
+to cargar-python
+  ; Leemos el archivo y guardamos sus datos en la lista datos-python.
+  set datos-python cargar-serie "resultados_python.csv"
+  ; Redibujamos las graficas con los datos importados.
+  actualizar-graficas-importadas
+; Fin del procedimiento cargar-python.
+end
+
+; Este procedimiento importa el CSV de Java (opcional; boton "cargar-java").
+to cargar-java
+  ; Leemos el archivo y guardamos sus datos en la lista datos-java.
+  set datos-java cargar-serie "resultados_java.csv"
+  ; Redibujamos las graficas con los datos importados.
+  actualizar-graficas-importadas
+; Fin del procedimiento cargar-java.
+end
+
+; Este procedimiento lee un CSV y devuelve sus filas de datos (sin el encabezado).
+to-report cargar-serie [nombre-archivo]
+  ; Si el archivo no existe en la carpeta del modelo, avisamos y devolvemos una lista vacia.
+  if not file-exists? nombre-archivo [
+    ; Mostramos una ventana con el aviso.
+    user-message (word "Archivo no encontrado: " nombre-archivo)
+    ; Devolvemos una lista vacia.
+    report []
+  ]
+  ; csv:from-file lee todo el archivo y lo convierte en una lista de filas.
+  let filas csv:from-file nombre-archivo
+  ; Si el archivo esta vacio, devolvemos una lista vacia.
+  if empty? filas [ report [] ]
+  ; La primera fila es el encabezado.
+  let encabezado first filas
+  ; Comprobamos que el encabezado sea exactamente el esperado.
+  if encabezado != (list "tiempo" "susceptibles" "infectados" "recuperados") [
+    ; Si no coincide, avisamos del problema.
+    user-message (word "Encabezado inesperado: " encabezado)
+    ; Y devolvemos una lista vacia.
+    report []
+  ]
+  ; Devolvemos todas las filas menos la primera (el encabezado).
+  report but-first filas
+; Fin del procedimiento cargar-serie.
+end
+
+; Este procedimiento redibuja la grafica del modelo local.
+to actualizar-grafica-local
+  ; Seleccionamos la grafica llamada "SIR NetLogo".
+  set-current-plot "SIR NetLogo"
+  ; La limpiamos.
+  clear-plot
+  ; Dibujamos las tres curvas (lapices S, I y R).
+  graficar-series datos-netlogo "S" "I" "R"
+; Fin del procedimiento actualizar-grafica-local.
+end
+
+; Este procedimiento redibuja todas las graficas que usan datos importados.
+to actualizar-graficas-importadas
+  ; Seleccionamos la grafica "SIR Python".
+  set-current-plot "SIR Python"
+  ; La limpiamos.
+  clear-plot
+  ; Dibujamos S, I y R con los datos de Python.
+  graficar-series datos-python "S" "I" "R"
+  ; Seleccionamos la grafica "SIR Java".
+  set-current-plot "SIR Java"
+  ; La limpiamos.
+  clear-plot
+  ; Dibujamos S, I y R con los datos de Java.
+  graficar-series datos-java "S" "I" "R"
+  ; Seleccionamos la grafica de comparacion de infectados.
+  set-current-plot "Comparacion infectados"
+  ; La limpiamos.
+  clear-plot
+  ; Infectados de Python (columna 2).
+  graficar-columna datos-python 2 "Python"
+  ; Infectados de Java (columna 2).
+  graficar-columna datos-java 2 "Java"
+  ; Infectados de NetLogo (columna 2).
+  graficar-columna datos-netlogo 2 "NetLogo"
+  ; Seleccionamos la grafica de comparacion de susceptibles.
+  set-current-plot "Comparacion susceptibles"
+  ; La limpiamos.
+  clear-plot
+  ; Susceptibles de Python (columna 1).
+  graficar-columna datos-python 1 "Python"
+  ; Susceptibles de Java (columna 1).
+  graficar-columna datos-java 1 "Java"
+  ; Susceptibles de NetLogo (columna 1).
+  graficar-columna datos-netlogo 1 "NetLogo"
+  ; Seleccionamos la grafica de comparacion de recuperados.
+  set-current-plot "Comparacion recuperados"
+  ; La limpiamos.
+  clear-plot
+  ; Recuperados de Python (columna 3).
+  graficar-columna datos-python 3 "Python"
+  ; Recuperados de Java (columna 3).
+  graficar-columna datos-java 3 "Java"
+  ; Recuperados de NetLogo (columna 3).
+  graficar-columna datos-netlogo 3 "NetLogo"
+; Fin del procedimiento actualizar-graficas-importadas.
+end
+
+; Este procedimiento dibuja las tres curvas S, I y R de una serie de datos.
+to graficar-series [datos lapiz-s lapiz-i lapiz-r]
+  ; Dibujamos los susceptibles (columna 1) con el lapiz indicado.
+  graficar-columna datos 1 lapiz-s
+  ; Dibujamos los infectados (columna 2) con el lapiz indicado.
+  graficar-columna datos 2 lapiz-i
+  ; Dibujamos los recuperados (columna 3) con el lapiz indicado.
+  graficar-columna datos 3 lapiz-r
+; Fin del procedimiento graficar-series.
+end
+
+; Este procedimiento dibuja UNA columna de datos (por ejemplo, solo los infectados).
+to graficar-columna [datos columna nombre-lapiz]
+  ; Seleccionamos el lapiz con el nombre indicado dentro de la grafica actual.
+  set-current-plot-pen nombre-lapiz
+  ; Por cada fila de datos, ponemos un punto: x = tiempo (columna 0), y = la columna pedida.
+  foreach datos [fila -> plotxy (item 0 fila) (item columna fila)]
+; Fin del procedimiento graficar-columna.
+end
