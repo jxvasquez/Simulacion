@@ -137,7 +137,7 @@ def pedir_configuracion():
             # Pedimos gamma.
             gamma = pedir_decimal("Gamma, tasa de recuperacion (entre 0 y 1)", 0.10)
             # Pedimos la cantidad de pasos.
-            pasos = pedir_entero("Cantidad de pasos de tiempo", 100)
+            pasos = pedir_entero("Cantidad de pasos de tiempo", 1000)
             # Pedimos la semilla del generador aleatorio.
             semilla = pedir_entero("Semilla aleatoria", 42)
 
