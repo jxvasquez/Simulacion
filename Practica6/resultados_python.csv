@@ -1,0 +1,9 @@
+configuracion,N,chi2,p_chi2,decision_chi2,D,p_ks,decision_ks,tiempo_segundos
+buena,1000,4.12,0.903338,No rechaza,0.028642,0.38003,No rechaza,0.000376
+buena,10000,14.16,0.116746,No rechaza,0.00596,0.868567,No rechaza,0.003684
+buena,100000,9.16,0.422638,No rechaza,0.002073,0.782894,No rechaza,0.04265
+buena,1000000,16.02272,0.066409,No rechaza,0.000944,0.334621,No rechaza,0.55399
+deficiente,1000,93.8,0.0,Rechaza,0.046875,0.023855,Rechaza,0.0037
+deficiente,10000,937.5,0.0,Rechaza,0.046875,0.0,Rechaza,0.002713
+deficiente,100000,9375.0,0.0,Rechaza,0.046875,0.0,Rechaza,0.029058
+deficiente,1000000,93750.0,0.0,Rechaza,0.046875,0.0,Rechaza,0.356142
