@@ -54,7 +54,8 @@ def main():
 
     controlador.comparar_con_otra_semilla(
         observaciones, NUEVA_SEMILLA, CANTIDAD_VALORES, CANTIDAD_TABLA,
-        os.path.join(CARPETA_RESULTADOS, f"grafico_semilla_{NUEVA_SEMILLA}.png"))
+        os.path.join(CARPETA_RESULTADOS, f"grafico_semilla_{NUEVA_SEMILLA}.png"),
+        os.path.join(CARPETA_RESULTADOS, "comparacion_semillas.csv"))
 
     # 4. Extra: parametros inadecuados (m pequeno y c = 0)
     parametros_malos = ParametrosLCG(a=5, c=0, m=16, semilla=3)

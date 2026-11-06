@@ -49,12 +49,3 @@ class VistaConsola:
         print(f"    Varianza = {varianza:.6f}   (esperado 1/12 = 0.083333)")
         print(f"    Minimo   = {minimo:.6f}")
         print(f"    Maximo   = {maximo:.6f}")
-
-    def mostrar_tabla_lenguajes(self, filas, cantidad):
-        """Tabla comparativa Python vs Java."""
-        print(f"{'n':>4} | {'X Python':>11} | {'X Java':>11} | {'U Python':>12} | {'U Java':>12} | Igual")
-        print("-" * 72)
-        for fila in filas[:cantidad]:
-            n, x_py, x_java, u_py, u_java, coinciden = fila
-            igual = "SI" if coinciden else "NO"
-            print(f"{n:>4} | {x_py:>11} | {x_java:>11} | {u_py:>12.10f} | {u_java:>12.10f} | {igual}")

@@ -68,7 +68,7 @@ class ControladorLCG:
 
     # ---------- Pasos 7 y 8: cambiar semilla y comparar ----------
     def comparar_con_otra_semilla(self, observaciones_originales, nueva_semilla,
-                                  cantidad, cantidad_tabla, ruta_grafico):
+                                  cantidad, cantidad_tabla, ruta_grafico, ruta_csv):
         self.vista.mostrar_titulo(f"PASO 7: Cambio de semilla a {nueva_semilla}")
         self.generador.reiniciar(nueva_semilla)
         nuevas = self.generador.generar_secuencia(cantidad)
@@ -81,9 +81,13 @@ class ControladorLCG:
         self._mostrar_estadisticas(f"semilla {self.parametros.semilla}", observaciones_originales)
         self._mostrar_estadisticas(f"semilla {nueva_semilla}", nuevas)
 
+        self.exportador.exportar_comparacion(
+            observaciones_originales, nuevas, self.parametros.semilla, nueva_semilla, ruta_csv)
+        self.vista.mostrar_mensaje(f"\n  Tabla comparativa guardada en: {ruta_csv}")
+
         titulo = f"LCG semilla = {nueva_semilla}"
         self.vista_grafica.graficar_secuencia(nuevas, ruta_grafico, titulo)
-        self.vista.mostrar_mensaje(f"\n  Grafico guardado en: {ruta_grafico}")
+        self.vista.mostrar_mensaje(f"  Grafico guardado en: {ruta_grafico}")
 
     # ---------- Extra: que pasa con parametros inadecuados ----------
     def demostrar_parametros_inadecuados(self, generador_malo, parametros_malos, cantidad_tabla):

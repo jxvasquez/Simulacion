@@ -10,10 +10,11 @@ import os
 class ControladorComparacion:
     """Lee los dos CSV, los compara y muestra la tabla resultante."""
 
-    def __init__(self, exportador, comparador, vista_consola):
-        self.exportador = exportador    # ExportadorCSV (sabe leer CSV)
-        self.comparador = comparador    # ComparadorSecuencias
-        self.vista = vista_consola      # VistaConsola
+    def __init__(self, exportador, comparador, vista_consola, vista_comparacion):
+        self.exportador = exportador                # ExportadorCSV (sabe leer CSV)
+        self.comparador = comparador                # ComparadorSecuencias
+        self.vista = vista_consola                  # VistaConsola (titulos y mensajes)
+        self.vista_comparacion = vista_comparacion  # VistaComparacion (tabla)
 
     def ejecutar(self, ruta_python, ruta_java, ruta_salida, cantidad_tabla):
         # Verificamos que existan los dos archivos antes de continuar
@@ -28,7 +29,7 @@ class ControladorComparacion:
         filas = self.comparador.comparar(secuencia_python, secuencia_java)
 
         self.vista.mostrar_titulo(f"Tabla comparativa Python vs Java (primeras {cantidad_tabla})")
-        self.vista.mostrar_tabla_lenguajes(filas, cantidad_tabla)
+        self.vista_comparacion.mostrar_tabla_lenguajes(filas, cantidad_tabla)
 
         diferencias = self.comparador.contar_diferencias(filas)
         self.vista.mostrar_titulo("Resultado de la comparacion completa")
@@ -43,6 +44,7 @@ class ControladorComparacion:
         self.vista.mostrar_mensaje(f"\n  Tabla completa guardada en: {ruta_salida}")
 
     def _guardar_tabla(self, filas, ruta):
+        """Guarda la tabla comparativa completa en un CSV."""
         with open(ruta, "w", newline="", encoding="utf-8") as archivo:
             escritor = csv.writer(archivo)
             escritor.writerow(["n", "X_python", "X_java", "U_python", "U_java", "coinciden"])

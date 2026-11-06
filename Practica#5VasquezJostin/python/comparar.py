@@ -15,6 +15,7 @@ import os
 from controlador.controlador_comparacion import ControladorComparacion
 from modelo.comparador_secuencias import ComparadorSecuencias
 from modelo.exportador_csv import ExportadorCSV
+from vista.vista_comparacion import VistaComparacion
 from vista.vista_consola import VistaConsola
 
 CARPETA_BASE = os.path.dirname(os.path.abspath(__file__))
@@ -26,6 +27,7 @@ def main():
         exportador=ExportadorCSV(),
         comparador=ComparadorSecuencias(),
         vista_consola=VistaConsola(),
+        vista_comparacion=VistaComparacion(),
     )
     controlador.ejecutar(
         os.path.join(CARPETA_RESULTADOS, "secuencia_python.csv"),

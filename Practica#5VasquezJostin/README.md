@@ -22,6 +22,7 @@ practica_lcg/
 |   |-- vista/
 |   |   |-- vista_consola.py           <- tablas y mensajes en la terminal
 |   |   |-- vista_grafica.py           <- graficos con matplotlib (PNG)
+|   |   |-- vista_comparacion.py       <- tabla Python vs Java
 |   |-- controlador/
 |       |-- controlador_lcg.py         <- coordina los pasos de la practica
 |       |-- controlador_comparacion.py <- coordina la comparacion
@@ -52,19 +53,23 @@ cd ../python
 python3 comparar.py
 ```
 
+Importante: el programa Java se debe ejecutar desde la carpeta `java/`
+para que los archivos se guarden en `resultados/`.
+
 Archivos que se generan en `resultados/`:
 
-- `secuencia_python.csv` y `secuencia_java.csv` (los 10 000 valores)
+- `secuencia_python.csv` y `secuencia_java.csv` (los 10 000 valores: n, X, U)
 - `tabla_comparacion.csv` (n, X_python, X_java, U_python, U_java, coinciden)
+- `comparacion_semillas.csv` (semilla 12345 vs 54321, lado a lado)
 - `grafico_semilla_12345.png`, `grafico_semilla_54321.png`, `grafico_java.png`
 
 ## Como se aplica MVC
 
-| Capa        | Que hace                                   | Ejemplo                         |
-|-------------|--------------------------------------------|---------------------------------|
-| Modelo      | Calculos y datos. No imprime nada.         | `GeneradorLCG`, `AnalizadorPeriodo` |
-| Vista       | Solo muestra informacion.                  | `VistaConsola`, `VistaGrafica`  |
-| Controlador | Pide datos al modelo y se los da a la vista | `ControladorLCG`               |
+| Capa        | Que hace                                    | Ejemplo                              |
+|-------------|---------------------------------------------|--------------------------------------|
+| Modelo      | Calculos y datos. No imprime nada.          | `GeneradorLCG`, `AnalizadorPeriodo`  |
+| Vista       | Solo muestra informacion.                   | `VistaConsola`, `VistaGrafica`       |
+| Controlador | Pide datos al modelo y se los da a la vista | `ControladorLCG`                     |
 
 ## Como se aplican los principios SOLID
 
@@ -74,8 +79,8 @@ Archivos que se generan en `resultados/`:
   se crea una clase nueva que implemente `GeneradorAleatorio`; el controlador no se modifica.
 - **L - Sustitucion de Liskov:** cualquier clase que implemente `GeneradorAleatorio`
   puede reemplazar a `GeneradorLCG` y el programa sigue funcionando.
-- **I - Segregacion de interfaces:** la interfaz `GeneradorAleatorio` es pequena y solo
-  tiene metodos de generacion; exportar o analizar estan en clases separadas.
+- **I - Segregacion de interfaces:** `GeneradorAleatorio` es pequena y solo tiene
+  metodos de generacion; exportar o analizar estan en clases separadas.
 - **D - Inversion de dependencias:** el controlador recibe sus objetos en el constructor
   (los crea `main`) y depende de la interfaz, no de la clase concreta.
 
@@ -95,6 +100,8 @@ Las dos implementaciones producen exactamente la misma secuencia
 Los parametros cumplen el teorema de Hull-Dobell, por lo que el periodo es
 completo: m = 4 294 967 296. Con 10 000 valores la media fue 0.4988 (esperado 0.5)
 y la varianza 0.0830 (esperado 1/12 = 0.0833).
+
+Con parametros inadecuados (a = 5, c = 0, m = 16) el periodo baja a solo 4.
 
 Detalle importante en Java: se usa `long` y no `int`, porque con m = 2^32 los valores
 de X no caben en un `int` (maximo 2 147 483 647).
