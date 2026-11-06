@@ -16,6 +16,8 @@ from modelo.repositorio_resultados import RepositorioResultados
 from vista.vista_consola import VistaConsola
 from vista.vista_grafica import VistaGrafica
 from controlador.controlador_simulacion import ControladorSimulacion
+from modelo.estimador_pi import EstimadorPi
+from controlador.controlador_pi import ControladorPi
 
 CARPETA_SALIDA = "resultados"
 ALFA = 0.05
@@ -50,6 +52,13 @@ def main():
 
     tamanos = [1_000, 10_000, 100_000, 1_000_000]
     controlador.ejecutar(configuraciones, tamanos, n_detalle=10_000)
+
+    # ---------- TABLA DE LA SECCION 6: pi estimado con el generador "buena" ----------
+    # Se crea un generador nuevo con la misma semilla para empezar desde el inicio
+    generador_pi = GeneradorLCG(semilla=12345, multiplicador=1664525,
+                                incremento=1013904223, modulo=2 ** 32)
+    controlador_pi = ControladorPi(EstimadorPi(generador_pi), vista_consola, repositorio)
+    controlador_pi.ejecutar(tamanos)
 
 
 if __name__ == "__main__":

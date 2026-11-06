@@ -137,10 +137,37 @@ def guardar_tabla(filas, ruta):
     print(f"\nTabla comparativa guardada en: {ruta}")
 
 
+def tabla_seccion_6(carpeta_python, carpeta_java):
+    """Tabla EXACTA de la guia: N | pi estimado | Error | Tiempo Python | Tiempo Java"""
+    pi_python = leer_csv(carpeta_python, "pi_python.csv")
+    pi_java = leer_csv(carpeta_java, "pi_java.csv")
+
+    print("\n" + "=" * 100)
+    print("TABLA SECCION 6 - RESULTADOS ESPERADOS")
+    print("=" * 100)
+    print(f"{'N':>10}{'pi estimado':>14}{'Error':>12}{'Tiempo Python':>16}"
+          f"{'Tiempo Java':>14}{'pi igual?':>11}")
+    filas = []
+    for py, ja in zip(pi_python, pi_java):
+        igual = abs(float(py["pi_estimado"]) - float(ja["pi_estimado"])) < 1e-9
+        print(f"{py['N']:>10}{float(py['pi_estimado']):>14.6f}{float(py['error']):>12.6f}"
+              f"{float(py['tiempo_segundos']):>15.4f}s{float(ja['tiempo_segundos']):>13.4f}s"
+              f"{'Si' if igual else 'No':>11}")
+        filas.append({"N": py["N"], "pi_estimado": py["pi_estimado"], "error": py["error"],
+                      "tiempo_python": py["tiempo_segundos"],
+                      "tiempo_java": ja["tiempo_segundos"]})
+
+    print("\nConclusion: al aumentar N el error de pi tiende a disminuir (proporcional")
+    print("a 1/raiz(N)), y ambos lenguajes obtienen el mismo pi porque usan la misma secuencia.")
+    guardar_tabla(filas, "tabla_seccion6_pi.csv")
+
+
 def main():
     # Por defecto se buscan los CSV en la misma carpeta de este archivo
     carpeta_python = sys.argv[1] if len(sys.argv) > 1 else "."
     carpeta_java = sys.argv[2] if len(sys.argv) > 2 else "."
+
+    tabla_seccion_6(carpeta_python, carpeta_java)
 
     filas_python = leer_csv(carpeta_python, "resultados_python.csv")
     filas_java = leer_csv(carpeta_java, "resultados_java.csv")

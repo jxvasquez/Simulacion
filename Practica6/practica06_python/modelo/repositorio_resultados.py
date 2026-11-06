@@ -36,3 +36,14 @@ class RepositorioResultados:
             for i, numero in enumerate(numeros):
                 archivo.write(f"{i + 1},{numero:.10f}\n")
         return ruta
+
+    def guardar_tabla_pi(self, nombre_archivo, filas):
+        """Guarda la tabla de pi estimado (N, pi, error, tiempo)."""
+        ruta = os.path.join(self.carpeta_salida, nombre_archivo)
+        columnas = ["N", "pi_estimado", "error", "tiempo_segundos"]
+        with open(ruta, "w", newline="", encoding="utf-8") as archivo:
+            escritor = csv.DictWriter(archivo, fieldnames=columnas)
+            escritor.writeheader()
+            for fila in filas:
+                escritor.writerow(fila)
+        return ruta

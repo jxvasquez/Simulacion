@@ -10,7 +10,9 @@
 //   java -cp bin Main
 // ============================================================
 
+import controlador.ControladorPi;
 import controlador.ControladorSimulacion;
+import modelo.EstimadorPi;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,5 +58,12 @@ public class Main {
 
         int[] tamanos = {1_000, 10_000, 100_000, 1_000_000};
         controlador.ejecutar(configuraciones, tamanos, 10_000);
+
+        // ---------- TABLA DE LA SECCION 6: pi estimado con el generador "buena" ----------
+        // Generador nuevo con la misma semilla para empezar desde el inicio
+        GeneradorAleatorio generadorPi = new GeneradorLCG(12345L, 1664525L, 1013904223L, 4294967296L);
+        ControladorPi controladorPi =
+                new ControladorPi(new EstimadorPi(generadorPi), vistaConsola, CARPETA_SALIDA);
+        controladorPi.ejecutar(tamanos);
     }
 }

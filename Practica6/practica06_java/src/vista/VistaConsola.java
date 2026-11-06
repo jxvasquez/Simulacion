@@ -74,4 +74,14 @@ public class VistaConsola {
                     fila.getTiempoSegundos());
         }
     }
+
+    // Tabla de la seccion 6 de la guia: N, pi estimado, error y tiempo
+    public void mostrarTablaPi(double[][] filas) {
+        mostrarTitulo("ESTIMACION DE PI CON EL LCG (Java)");
+        System.out.printf("%10s%14s%12s%12s%n", "N", "pi estimado", "Error", "Tiempo(s)");
+        for (double[] fila : filas) {
+            System.out.printf(Locale.US, "%10d%14.6f%12.6f%12.4f%n",
+                    (int) fila[0], fila[1], fila[2], fila[3]);
+        }
+    }
 }

@@ -62,3 +62,11 @@ class VistaConsola:
             print(f"{fila['configuracion']:<12}{fila['N']:>10}{fila['chi2']:>11.4f}"
                   f"{fila['p_chi2']:>9.4f}{fila['D']:>11.6f}{fila['p_ks']:>9.4f}"
                   f"{fila['tiempo_segundos']:>11.4f}")
+
+    def mostrar_tabla_pi(self, filas):
+        """Tabla de la seccion 6 de la guia: N, pi estimado, error y tiempo."""
+        self.mostrar_titulo("ESTIMACION DE PI CON EL LCG (Python)")
+        print(f"{'N':>10}{'pi estimado':>14}{'Error':>12}{'Tiempo(s)':>12}")
+        for fila in filas:
+            print(f"{fila['N']:>10}{fila['pi_estimado']:>14.6f}"
+                  f"{fila['error']:>12.6f}{fila['tiempo_segundos']:>12.4f}")
